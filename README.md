@@ -1,1 +1,1 @@
-# emastocktradingstrategy
+# ema stock trading strategy
