@@ -1,5 +1,5 @@
 ![Figure_1](https://github.com/edwardabah29/emastocktradingstrategy/assets/98519652/475d41df-f68a-411a-bf2e-1a8c255c384b)
-
+This result was obtained using the BTC-USD.csv data
 
 
 This code is an example of using the Exponential Moving Average (EMA) as a basis for an algorithmic trading strategy. The strategy aims to generate buy and sell signals for a given security (in this case, cryptocurrency data stored in a CSV file). The main components of the code are as follows:
