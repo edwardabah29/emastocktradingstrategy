@@ -1,99 +1,25 @@
-# ema stock trading strategy
+This code is an example of using the Exponential Moving Average (EMA) as a basis for an algorithmic trading strategy. The strategy aims to generate buy and sell signals for a given security (in this case, cryptocurrency data stored in a CSV file). The main components of the code are as follows:
 
-# Exponential moving average method for algorithimc stock trading
+1. **Importing Libraries**: The necessary libraries are imported at the beginning of the code. These include Pandas for data manipulation, NumPy for numerical operations, and Matplotlib for creating visualizations.
 
+2. **Loading Data**: The cryptocurrency data is read from a CSV file named 'BTC-USD.csv' using Pandas. The 'Date' column is set as the index of the DataFrame.
 
-# Import libraries
-import pandas as panda
-import numpy as nump
-import matplotlib.pyplot as pt
-pt.style.use('fivethirtyeight')
+3. **Exponential Moving Average (EMA) Function**: The code defines a function called `EMA()` to calculate the exponential moving average. The function takes the data, a period (default set to 30), and a column name (default set to 'Close'). The EMA is calculated using the `ewm()` method from Pandas, which computes the exponential weighted moving average.
 
+4. **Calculating EMA**: The EMA is calculated for the 'Close' prices using the `EMA()` function, and the result is added as a new column named 'EMA30' to the DataFrame.
 
+5. **Trading Strategy Function**: The `strategy()` function is defined to implement the trading strategy. This function iterates through the data and generates buy and sell signals based on the relationship between the EMA and the closing price. The function maintains a `buy` list and a `sell` list to keep track of buy and sell signals. It also uses a `flag` variable to track the state (whether the last action was a buy or sell) and a `buy_price` variable to store the last buy price.
 
-# Store the data
-secuirity_data_frame = panda.read_csv('BTC-USD.csv')
+6. **Generating Buy and Sell Signals**: Within the `strategy()` function, a loop goes through each data point. If the EMA is higher than the closing price and the flag indicates it's okay to buy, a buy signal is generated and recorded in the `buy` list. Similarly, if the EMA is lower than the closing price and the flag indicates it's okay to sell, a sell signal is generated and recorded in the `sell` list. The `buy_price` is updated accordingly.
 
+7. **Removing Non-Numeric Values**: The `remove_nan()` function is defined to remove NaN (not-a-number) values from a list, which are introduced when there's no buy or sell signal at a certain point.
 
-# Set the date as index
-secuirity_data_frame = secuirity_data_frame.set_index(panda.DatetimeIndex(secuirity_data_frame['Date'].values))
+8. **Calculating Profits**: The code calculates the realized profit or loss (P/L) by subtracting the buy prices from the corresponding sell prices. The profits for all trades are summed up and printed.
 
+9. **Applying Strategy**: The `strategy()` function is called on the security's DataFrame to generate buy and sell signals. These signals are added as new columns 'Buy' and 'Sell' in the DataFrame.
 
-# Exponential moving average
-def EMA(data, period=30, column='Close'): # Take in the close price column from our data set
-    return data[column].ewm(span=period, adjust=False).mean()
+10. **Creating Visualizations**: Matplotlib is used to visualize the close prices, EMA, buy signals, and sell signals on a single plot. The 'Close' prices are plotted as a line, EMA as another line, buy signals as green '^' markers, and sell signals as red 'v' markers.
 
+11. **Displaying the Plot**: The plot is displayed using `pt.show()`.
 
-# Create a new column to store the EMA
-secuirity_data_frame['EMA30'] = EMA(secuirity_data_frame)
-
-
-# Create the strategy
-def strategy(data_frame):
-    buy = [ ]   # Empty buy list
-    sell = [ ]  # Empty sell list
-    flag = 0    # To indicate if we last bought or sold the asset
-    buy_price = 0 # place holder for the last price that we bought at
-
-    # EMA
-    for i in range(0, len(data_frame)): # Create a loop to go through the data
-        # if the 30 day moving average is greater than the closing price at position i and the flag = 0 indicating that its okay to buy.
-        if data_frame['EMA30'][i] > data_frame['Close'][i] and flag == 0:
-            buy.append(data_frame['Close'][i]) # Buy the asset and append it to the buy list
-            sell.append(nump.nan) # Dont sell asset and append nan value to the sell list
-            buy_price = data_frame['Close'][i]
-            flag = 1
-        elif data_frame['EMA30'][i] < data_frame['Close'][i] and flag == 1 and buy_price < data_frame['Close'][i]:
-        # if the 30 day moving average is less than the closing price at position i and the flag = 1 indicating that its okay to sell and the last buy price is less than the price we are trying to sell at.
-            sell.append(data_frame['Close'][i])
-            buy.append(nump.nan)
-            buy_price = 0
-            flag = 0
-        else:
-            sell.append(nump.nan)
-            buy.append(nump.nan)
-
-
-    # print buy prices
-    remove_nan_buy = remove_nan(buy)
-    print ('Bought at prices: ', remove_nan_buy)
-
-    # print sell prices
-    remove_nan_sell = remove_nan(sell)
-    print ('Sold at prices: ', remove_nan_sell)
-
-    # print profit
-    length_of_buy = len(remove_nan_buy)
-    remove_nan_buy = nump.delete(remove_nan_buy, length_of_buy-1) # remove the last buy price from the list so its can be equal for profit calculation.
-    for j in remove_nan_sell:
-        for i in remove_nan_buy:
-            profit = remove_nan_sell - remove_nan_buy
-    print('Realized P/L: ', sum(profit))
-    
-
-    return(buy, sell)
-
-
-# remove non numbers
-def remove_nan(l):
-    numpy_array = nump.array(l)
-    remove_nan = numpy_array[nump.logical_not(nump.isnan(numpy_array))]
-    return  remove_nan
-
-
-# Get the buy and sell list
-trading_strategy = strategy(secuirity_data_frame)
-secuirity_data_frame['Buy'] = trading_strategy[0]
-secuirity_data_frame['Sell'] = trading_strategy[1]
-
-
-# Visualize the close price and the buy and sell signals
-pt.figure(figsize=(16, 8))
-pt.title('Close Price with buy and sell signals')
-pt.plot(secuirity_data_frame['Close'], alpha = 0.5, label = 'Close' )
-pt.plot(secuirity_data_frame['EMA30'], alpha = 0.5, label = 'EMA30')
-pt.scatter(secuirity_data_frame.index, secuirity_data_frame['Buy'], color = 'green', label = 'Buy Signal', marker = '^', alpha = 1)
-pt.scatter(secuirity_data_frame.index, secuirity_data_frame['Sell'], color = 'red', label = 'Sell Signal', marker = 'v', alpha = 1)
-pt.xlabel('Date')
-pt.ylabel('Close Price in USD')
-pt.show()
+In summary, this code demonstrates a simple algorithmic trading strategy using the EMA as a signal to make buy and sell decisions. The strategy generates signals based on the relationship between the EMA and the closing price of the security. Keep in mind that this code is a basic example and might not be suitable for actual trading without further testing, optimization, and risk management measures.
