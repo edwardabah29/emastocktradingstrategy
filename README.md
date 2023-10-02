@@ -1,3 +1,5 @@
+**Solution available in python, typescript and java**
+
 ![Figure_1](https://github.com/edwardabah29/emastocktradingstrategy/assets/98519652/475d41df-f68a-411a-bf2e-1a8c255c384b)
 This result was obtained using the BTC-USD.csv data
 
